@@ -1,0 +1,129 @@
+#!/usr/bin/env ruby
+require 'optparse'
+
+config = {
+  :timeout => 10,
+  :monitrc => "/var/vcap/bosh/etc/monitrc",
+}
+
+opt = OptionParser.new
+opt.on('-m MONITRC', 'Path to the monitrc file (default: #{config[:monitrc]})') {|v| config[:monitrc] = v }
+opt.on('-t TIMEOUT', 'Seconds to timeout (default: #{config[:timeout]})') {|v| config[:timeout] = v }
+opt.banner = <<EOF
+Usage: job-ctl [OPTION]... (start|stop|status)
+EOF
+opt.parse!(ARGV)
+
+if ARGV[0].nil? || ![:start, :stop, :status].include?(ARGV[0].to_sym)
+  $stderr.puts("Invalid command given.")
+  $stderr.puts(opt.help)
+  exit(1)
+end
+
+run_mode = ARGV[0].to_sym
+
+unless File.exists?(config[:monitrc])
+  $stderr.puts("Monitrc file not found at #{config[:monitrc]}")
+  exit(1)
+end
+
+daemons = {}
+current = nil
+depended_by = {}
+File.read(config[:monitrc]).split("\n").each do |line|
+  if m = line.match(/^check\s+process\s+([^ ]*)(?: with pidfile "?(.*?)"?)?$/i)
+    current = m[1].strip
+    daemons[current] = {
+      :name => current,
+      :depends_on => [],
+      :depended_by => [],
+      :pidfile => m[2] ? m[2].strip : nil,
+      :start_program => nil,
+      :stop_program => nil,
+    }
+  elsif m = line.match(/^\s+with\s+pidfile\s+"?(.*?)"?$/i)
+    daemons[current][:pidfile] = m[1].strip
+  elsif m = line.match(/^\s+start\s+program\s+"(.*?)"/i)
+    daemons[current][:start_program] = File.expand_path(m[1].strip)
+  elsif m = line.match(/^\s+stop\s+program\s+"(.*?)"/i)
+    daemons[current][:stop_program] = File.expand_path(m[1].strip)
+  elsif m = line.match(/^\s+depends\s+on\s+"?(.*?)"?$/i)
+    daemons[current][:depends_on] << m[1].strip
+    depended_by[m[1]] ||= []
+    depended_by[m[1]] << current
+  end
+end
+depended_by.each_pair do |from, to|
+  daemons[from][:depended_by] = to
+end
+
+done = []
+faild = []
+pending = daemons.values
+not_locked = true
+exit_code = 0
+while pending.size > 0 && not_locked
+  not_locked = pending.reject! do |daemon|
+    if (run_mode == :start && daemon[:depends_on].size > 0 && (done & daemon[:depends_on]).size != daemon[:depends_on].size) ||
+        (run_mode == :stop && daemon[:depended_by].size > 0 && (done & daemon[:depended_by]).size != daemon[:depended_by].size) then
+      false
+    else
+      if run_mode == :start
+        Process::fork do
+          Process::daemon
+          exec("bash #{daemon[:start_program]}")
+        end
+
+        timeout = config[:timeout]
+        while timeout > 0
+
+          break if File.exists?(daemon[:pidfile]) && File.exists?("/proc/#{File.read(daemon[:pidfile]).strip}")
+          sleep(1)
+          timeout -= 1
+        end
+        if timeout > 0
+          puts "#{daemon[:name]}: \033[32mRUNNING\033[0m"
+          done << daemon[:name]
+          true
+        else
+          puts "#{daemon[:name]}: \033[31mFAILD\033[0m"
+          faild << daemon[:name]
+          exit_code += 1
+          false
+        end
+      elsif run_mode == :stop
+        system("bash #{daemon[:stop_program]}")
+        timeout = config[:timeout]
+        while timeout > 0
+          break unless File.exists?(daemon[:pidfile])
+          sleep(1)
+          timeout -= 1
+        end
+        if timeout > 0
+          puts "#{daemon[:name]}: \033[31mSTOPPED\033[0m"
+          done << daemon[:name]
+          true
+        else
+          puts "#{daemon[:name]}: \033[31mFAILD\033[0m"
+          faild << daemon[:name]
+          exit_code += 1
+          false
+        end
+      elsif run_mode == :status
+        if File.exists?(daemon[:pidfile]) && File.exists?("/proc/#{File.read(daemon[:pidfile]).strip}")
+          puts "#{daemon[:name]}: \033[32mRUNNING\033[0m"
+        else
+          puts "#{daemon[:name]}: \033[31mSTOPPED\033[0m"
+        end
+        true
+      end
+    end
+  end
+end
+
+if pending.size > 0
+  (pending.map { |daemon| daemon[:name] } - faild).each do |name|
+    puts "#{name}: \033[31mFAILD\033[0m"
+  end
+end
+exit(exit_code)

@@ -1,0 +1,13 @@
+---
+nginx/lbase64.tar.gz:
+  object_id: eyJvaWQiOiI0ZTRlNzhiY2ExMWUxMjIwMDRlNGU4ZWM2NDg0MzEwNGYzMDY4%0AMTc2ODgzNSIsInNpZyI6IlZ3dmoxRDVmTXQrY0xrcm5QOUFNdFFYeWtlcz0i%0AfQ==%0A
+  sha: 5692619dae780dbdf9edc994f9dcd7dce7b24646
+  size: 2503
+dea_transition/gems/thin-1.2.11.gem:
+  object_id: eyJvaWQiOiI0ZTRlNzhiY2EzMWUxMjEwMDRlNGU3ZDUxNDc0NWYwNGYzMDY5%0AZDhhNzI5MCIsInNpZyI6IlkycjJrTXhRNUttMGFIdUhBaU9vV3J5NmdSMD0i%0AfQ==%0A
+  sha: defa97b88678f1358380346734acefd346a78bd9
+  size: 142848
+dea_transition/gems/rails-3.0.6.gem:
+  object_id: eyJvaWQiOiI0ZTRlNzhiY2ExMWUxMjIwMDRlNGU4ZWM2NDg0MzEwNGYzMDY5%0AZGRjODE0YyIsInNpZyI6IitCWWxYNmFnUjZhQ01ObmtySFhpMFdkQkJDMD0i%0AfQ==%0A
+  sha: ebeea3c1f03db3309ea9a6640e1767ab144ff567
+  size: 3584

@@ -1,0 +1,36 @@
+--- 
+packages: 
+- name: miku
+  version: 39
+  dependencies: []
+
+- name: ren
+  version: 39-dev
+  dependencies:
+    - rin
+- name: rin
+  version: 39-dev
+  dependencies:
+    - ren
+- name: luca
+  version: 39-dev
+  dependencies:
+    - miku
+- name: tako
+  version: 8
+  dependencies:
+    - luca
+- name: meiko
+  version: 20
+  dependencies:
+    - tako
+    - luca
+- name: kaito
+  version: 20
+  dependencies: []
+- name: fail_packaging
+  version: 1
+  dependencies: []
+
+name: test
+version: 39.3-dev

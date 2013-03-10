@@ -1,0 +1,26 @@
+#!/bin/sh
+DEBIAN_FRONTEND=noninteractive apt-get install -f -y --force-yes --no-install-recommends \
+build-essential libssl-dev lsof \
+strace bind9-host dnsutils tcpdump iputils-arping \
+curl wget libcurl3 libcurl3-dev bison libreadline6-dev \
+libxml2 libxml2-dev libxslt1.1 libxslt1-dev zip unzip \
+nfs-common flex psmisc apparmor-utils iptables sysstat \
+rsync openssh-server traceroute libncurses5-dev quota \
+libaio1 gdb tripwire
+
+# https://github.com/cloudfoundry/bosh/blob/master/stemcell_builder/stages/bosh_users/apply.sh
+#!/usr/bin/env bash
+#
+# Copyright (c) 2009-2012 VMware, Inc.
+# Set up users/groups
+if [ `cat /etc/passwd | cut -f1 -d ":" | grep "^vcap$" -c` -eq 0 ]; then
+    addgroup --system admin
+    adduser --disabled-password --gecos Ubuntu vcap
+
+    for grp in admin adm audio cdrom dialout floppy video plugdev dip
+    do
+        adduser vcap $grp
+    done
+else
+    echo "User vcap exists already, skippking adduser..."
+fi

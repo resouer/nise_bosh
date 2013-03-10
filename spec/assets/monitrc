@@ -1,0 +1,23 @@
+check  process  android
+  with   pidfile /tmp/nise_bosh_spec/run/android.pid
+  start program  "./spec/assets/job_start android"
+  stop program  "./spec/assets/job_stop android"
+
+
+check process nendoroid
+    with   pidfile  /tmp/nise_bosh_spec/run/nendoroid.pid
+             start  program     "./spec/assets/job_start nendoroid"
+    stop      program  "./spec/assets/job_stop nendoroid"  with timeout 39 seconds
+   depends  on angel
+
+
+check process angel with pidfile /tmp/nise_bosh_spec/run/angel.pid
+  start program "./spec/assets/job_start_5s_delay angel"
+  stop program "./spec/assets/job_stop angel"
+  group angel
+
+#check process comment_out with pidfile /tmp/nise_bosh_spec/run/comment_out.pid
+#  start program "./spec/assets/job_start_5s_delay comment_out"
+#  stop program "./spec/assets/job_stop comment_out"
+
+

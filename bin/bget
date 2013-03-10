@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+require 'optparse'
+require 'blobstore_client'
+include Bosh::Blobstore
+
+# FIXME: options for the other providers
+store_options = {
+  :url => "http://blob.cfblob.com",
+  :uid => "bb6a0c89ef4048a8a0f814e25385d1c5/user1"
+}
+provider = "atmos"
+out_file_name = nil
+
+opt = OptionParser.new
+opt.on('-u URL') {|v| store_options[:url] = v }
+opt.on('-i UID') {|v| store_options[:uid] = v }
+opt.on('-o OUTPUT_FILE_NAME') {|v| out_file_name = v }
+opt.parse!(ARGV)
+file_id=ARGV[0]
+out_file_name ||= file_id
+
+unless file_id
+  $stderr.puts("Object id not given.")
+  exit(1)
+end
+
+begin
+  File.open(out_file_name, "w") do |out_file|
+    Client.create(provider, store_options).get(file_id, out_file)
+  end
+rescue => e
+  $stderr.puts(e)
+  exit(1)
+end

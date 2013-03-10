@@ -1,0 +1,10 @@
+check process nendoroid
+    with pidfile /tmp/nise_bosh_spec/run/nendoroid.pid
+    start program "./spec/assets/job_start nendoroid"
+    stop program "./spec/assets/job_stop nendoroid"
+    depends  on angel
+
+check process angel
+    with pidfile /tmp/nise_bosh_spec/run/angel.pid
+    start program ":"
+    stop program ":"

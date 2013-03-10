@@ -1,0 +1,5 @@
+job=$(eval echo '$'$#)
+pidfile=/tmp/nise_bosh_spec/run/${job}.pid
+
+kill `cat $pidfile`
+rm -rf $pidfile

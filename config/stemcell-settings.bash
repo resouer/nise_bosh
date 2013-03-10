@@ -1,0 +1,2 @@
+base_debootstrap_suite=precise
+bosh_users_password=hogehoge

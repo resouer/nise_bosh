@@ -1,0 +1,4 @@
+monit
+<% unless hide.value %>
+invisible
+<% end %>

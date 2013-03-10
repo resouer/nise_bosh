@@ -1,0 +1,8 @@
+---
+name: angel
+templates:
+  miku.conf.erb: config/miku.conf
+
+packages:
+- miku
+- luca

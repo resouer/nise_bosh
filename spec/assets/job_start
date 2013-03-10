@@ -1,0 +1,9 @@
+job=$(eval echo '$'$#)
+pidfile=/tmp/nise_bosh_spec/run/${job}.pid
+mkdir -p $(dirname $pidfile)
+echo $$ > $pidfile
+
+while [ true ];
+do
+    sleep 1s
+done

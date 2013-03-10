@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+require 'fileutils'
+require 'optparse'
+
+if ENV['USER'] != "root"
+  $stderr.puts("This command requires root privilege. Try sudo.")
+  exit(1)
+end
+
+bosh_path = "#{ENV['HOME']}/.nise_bosh"
+config_dir = File.expand_path(File.join(File.dirname(__FILE__), "..", "config"))
+specification_file = File.join(config_dir, "stemcell-nise.spec")
+settings_file = File.join(config_dir, "stemcell-settings.bash")
+out_file = File.join(%W{/ var vcap stemcell_base.tar.gz})
+
+opt = OptionParser.new
+opt.on('--spec PATH', 'Stemccell settings') {|v| specification_file = File.expand_path(v) }
+opt.on('--settings PATH', 'Stemccell spec') {|v| settings_file = File.expand_path(v) }
+opt.on('--bosh PATH', 'BOSH path (default: ~/.nise_bosh)') {|v| bosh_path = File.expand_path(v) }
+opt.on('--out-file PATH', 'Output file name (default: /var/vcap/stemcell_base.tar.gz)') {|v| out_file = File.expand_path(v) }
+opt.banner = "Usage: gen-stemcell [OPTION]..."
+opt.parse!(ARGV)
+
+if File.directory?(bosh_path)
+  puts("Updating BOSH...")
+  FileUtils.cd(bosh_path) do
+    `git pull`
+  end
+else
+   puts("BOSH command not found. Cloning a BOSH...")
+   if system("which git > /dev/null")
+     system("git clone --depth 1 https://github.com/cloudfoundry/bosh #{bosh_path}")
+   else
+     $stderr.puts("'git' command not found. Aborting.")
+     exit(1)
+   end
+end
+
+FileUtils.cd(File.join(%W{#{bosh_path} stemcell_builder})) do
+  work_dir = `mktemp -d`.strip
+  system("./bin/build_from_spec.sh #{work_dir} #{specification_file} #{settings_file}")
+  system("tar -C #{work_dir}/work/chroot -czf #{out_file} .")
+end
+
+puts "Done."

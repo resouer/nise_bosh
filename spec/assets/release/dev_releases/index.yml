@@ -1,0 +1,8 @@
+---
+builds:
+  33ij0fjap1p92uhpbbbnzcxkv9f84g40jf0afdff:
+    version: 8.9-dev
+  f39f39fiijj32309f30293f0j3fpaje9jpp8jp33:
+    version: 39.1-dev
+  ecbe92a7f72b8989294971496760a07845dd67f8:
+    version: 39.3-dev
