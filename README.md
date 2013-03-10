@@ -22,7 +22,7 @@ Run the command below:
 
 ### Release repository
 
-Nise BOSH requries a clone of a 'release' repository you want to install (e.g. cf-release for Cloud Foundry). Clone the repository and checkout its submodules at your referred directory.
+Nise BOSH requries a clone of the 'release' repository you want to install (e.g. cf-release for Cloud Foundry). Clone the repository and checkout its submodules at your preferred directory.
 
     git clone git@github.com:cloudfoundry/cf-release.git
     cd cf-release
@@ -72,7 +72,8 @@ You can find an example at [Cloud foundry's OSS docs](https://github.com/cloudfo
         memory_mb: 4096
         memory_overcommit_factor: 1
         disk_mb: 32000
-        disk_overcommit_fac
+        disk_overcommit_factor: 1
+        num_instances: 30
 
 ### Run
 
@@ -99,7 +100,7 @@ This command automatically loads the monitrc file (default in: /var/vcap/bosh/et
 
 ### '-y': Assume yes as an answer to all prompts
 
-Nise-BOSH do not aske any prompts.
+Nise-BOSH do not ask any prompts.
 
 ### '-f': Force install packages
 
