@@ -37,3 +37,7 @@ def expect_to_has_same_files(path1, path2, both =[])
     end
   end
 end
+
+def expect_file_mode(*path)
+  expect(File.stat(File.join(File.join(*path))).mode)
+end

@@ -244,6 +244,9 @@ class NiseBosh
     open(to, "w") {|f| f.write(to_result)}
 
     FileUtils.mkdir_p(File.join(@options[:install_dir], "data", "packages"))
+    if File.basename(File.dirname(to)) == "bin"
+      FileUtils.chmod(0755, to)
+    end
   end
 
   def job_exists?(job)

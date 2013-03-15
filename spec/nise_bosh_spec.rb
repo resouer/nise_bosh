@@ -150,26 +150,32 @@ describe NiseBosh do
   describe "#write_template" do
     before do
       @spec = YAML.load_file(File.join(@options[:repo_dir], "jobs", "angel", "spec"))
-      @template = File.join(@options[:repo_dir], "jobs", "angel", "templates", @spec["templates"].keys[0])
-      @write_to =  File.join(@options[:install_dir], "jobs", "angel",  @spec["templates"].values[0])
-      @output = [@options[:install_dir]] + %w{jobs angel config miku.conf}
+      @config_template = File.join(@options[:repo_dir], "jobs", "angel", "templates", @spec["templates"].keys[0])
+      @config_write_to =  File.join(@options[:install_dir], "jobs", "angel",  @spec["templates"].values[0])
+      @bin_template = File.join(@options[:repo_dir], "jobs", "angel", "templates", @spec["templates"].keys[1])
+      @bin_write_to =  File.join(@options[:install_dir], "jobs", "angel",  @spec["templates"].values[1])
     end
 
     it "should fill template and save file" do
-      @nb.write_template(@spec, @template, @write_to)
-      expect_contents(@output).to eq("tenshi\n0\n#{@current_ip}\n")
+      @nb.write_template(@spec, @config_template, @config_write_to)
+      expect_contents(@config_write_to).to eq("tenshi\n0\n#{@current_ip}\n")
     end
 
     it "should fill template with given IP address and index number, and save file" do
       @nb = NiseBosh.new(@options.merge({:ip_address => "39.39.39.39", :index => 39}), @log)
-      @nb.write_template(@spec, @template, @write_to)
-      expect_contents(@output).to eq("tenshi\n39\n39.39.39.39\n")
+      @nb.write_template(@spec, @config_template, @config_write_to)
+      expect_contents(@config_write_to).to eq("tenshi\n39\n39.39.39.39\n")
     end
 
     it "should fill template with given spec.index in deploy file, and save file" do
       @nb = NiseBosh.new(@options.merge({:deploy_config => File.join(File.expand_path("."), "spec", "assets", "deploy_overwrite_spec.conf")}), @log)
-      @nb.write_template(@spec, @template, @write_to)
-      expect_contents(@output).to eq("tenshi\n39\n#{@current_ip}\n")
+      @nb.write_template(@spec, @config_template, @config_write_to)
+      expect_contents(@config_write_to).to eq("tenshi\n39\n#{@current_ip}\n")
+    end
+
+    it "should chmod 0755 when the file is in 'bin' directory" do
+      @nb.write_template(@spec, @bin_template, @bin_write_to)
+      expect_file_mode(@bin_write_to).to eq(0100755)
     end
 
     it "should raise an error when template not found" do

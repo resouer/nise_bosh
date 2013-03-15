@@ -2,6 +2,7 @@
 name: angel
 templates:
   miku.conf.erb: config/miku.conf
+  miku_ctl.erb: bin/miku_ctl
 
 packages:
 - miku
