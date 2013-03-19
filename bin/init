@@ -1,4 +1,6 @@
 #!/bin/sh
+
+# stemcell_builder/stages/base_apt/apply.sh
 DEBIAN_FRONTEND=noninteractive apt-get install -f -y --force-yes --no-install-recommends \
 build-essential libssl-dev lsof \
 strace bind9-host dnsutils tcpdump iputils-arping \
@@ -8,11 +10,20 @@ nfs-common flex psmisc apparmor-utils iptables sysstat \
 rsync openssh-server traceroute libncurses5-dev quota \
 libaio1 gdb tripwire
 
-# https://github.com/cloudfoundry/bosh/blob/master/stemcell_builder/stages/bosh_users/apply.sh
-#!/usr/bin/env bash
-#
-# Copyright (c) 2009-2012 VMware, Inc.
-# Set up users/groups
+
+# bosh_agent/lib/bosh_agent/platform/ubuntu/templates/logrotate.erb
+cat <<EOF > /etc/logrotate.d/nise_bosh
+/var/vcap/sys/log/*.log /var/vcap/sys/log/*/*.log /var/vcap/sys/log/*/*/*.log {
+  missingok
+  rotate 7
+  compress
+  delaycompress
+  copytruncate
+  size=100M
+}
+EOF
+
+# stemcell_builder/stages/bosh_users/apply.sh
 if [ `cat /etc/passwd | cut -f1 -d ":" | grep "^vcap$" -c` -eq 0 ]; then
     addgroup --system admin
     adduser --disabled-password --gecos Ubuntu vcap
