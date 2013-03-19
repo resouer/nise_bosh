@@ -10,6 +10,9 @@ nfs-common flex psmisc apparmor-utils iptables sysstat \
 rsync openssh-server traceroute libncurses5-dev quota \
 libaio1 gdb tripwire
 
+# installed somewhere else
+DEBIAN_FRONTEND=noninteractive apt-get install -f -y --force-yes --no-install-recommends \
+gettext
 
 # bosh_agent/lib/bosh_agent/platform/ubuntu/templates/logrotate.erb
 cat <<EOF > /etc/logrotate.d/nise_bosh
