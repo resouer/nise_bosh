@@ -39,6 +39,7 @@ end
 FileUtils.cd(File.join(%W{#{bosh_path} stemcell_builder})) do
   work_dir = `mktemp -d`.strip
   system("./bin/build_from_spec.sh #{work_dir} #{specification_file} #{settings_file}")
+  FileUtils.mkdir_p(File.dirname(out_file))
   system("tar -C #{work_dir}/work/chroot -czf #{out_file} .")
 end
 
