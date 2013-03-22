@@ -85,6 +85,20 @@ Example:
 
     sudo PATH=$PATH bundle exec ./bin/nise-bosh ~/cf-release ~/deploy.conf dea_next
 
+### Initialize the environment (optional)
+
+You need to install and create required apt packages and users on your environemnt to execute certain job processes from cf-release. The original BOSH sets up the environment using a stemcell, but Nise-BOSH does not support it. You can simulate a stemcell-like environment on your server by executing the `bin/init` script.
+
+    sudo ./bin/init
+
+This script runs the minimal (sometimes insufficient) commands extracted from the stemcell-builder stages.
+
+### Create stemcell_base.tar.gz (optional)
+
+Some packages require `/var/vcap/stemcell_base.tar.gz` file to create Warden containers. You can create the file by executing the `bin/gen-stemcell` script.
+
+    sudo ./bin/gen-stemcell
+
 ### Launch processes
 
 Once instllation is complete, you can launch job processes by `run-job` command.
