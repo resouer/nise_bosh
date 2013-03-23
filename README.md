@@ -9,6 +9,7 @@ Nise BOSH is a lightweight BOSH emulator. You can easily install multiple BOSH p
 ## Requirements
 
 * Ubuntu 10.04, 12.04
+ * Ubuntu 10.04 64bit is recmmended when you install cf-release jobs.
 * Ruby 1.9.2 or higher
 * Bundler
 
