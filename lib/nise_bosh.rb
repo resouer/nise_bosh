@@ -1,7 +1,9 @@
 require 'yaml'
 require 'erb'
 
-require 'recursive_os'
+module Bosh
+  require "common/properties"
+end
 
 class NiseBosh
   def initialize(options, logger)
@@ -218,13 +220,13 @@ class NiseBosh
   end
 
   def install_job_templates(job)
-    spec = job_spec(job)
+    job_spec = job_spec(job)
     template_base = File.join(@options[:repo_dir], "jobs", job, "templates")
     install_base = File.join(@options[:install_dir], "jobs", job)
-    spec["templates"].each_pair do |template, to|
-      write_template(spec, File.join(template_base, template), File.join(install_base, to))
+    job_spec["templates"].each_pair do |template, to|
+      write_template(job_spec, File.join(template_base, template), File.join(install_base, to))
     end
-    write_template(spec, File.join(@options[:repo_dir], "jobs", job, "monit"), File.join(@options[:install_dir], "bosh", "etc", "monitrc"))
+    write_template(job_spec, File.join(@options[:repo_dir], "jobs", job, "monit"), File.join(@options[:install_dir], "bosh", "etc", "monitrc"))
   end
 
   def job_packages(job)
@@ -235,19 +237,16 @@ class NiseBosh
     YAML.load_file(File.join(@options[:repo_dir], "jobs", job, "spec"))
   end
 
-  def write_template(spec, template, to)
-    job = spec["name"]
-    b = RecursiveOpenStruct.new(@deploy_config)
-    # FIXME: add other variables
-    b.update_value!("spec.index", @index) unless b.key_exists?("spec.index")
-    b.update_value!("spec.networks.default.ip", @ip_address) unless b.key_exists?("spec.networks.default.ip")
-    def b.fill(template)
-      ERB.new(File.read(template)).result(binding)
-    end
-    @deploy_config.each_pair do |key, val|
-      b.instance_variable_set("@#{key}", val)
-    end
-    to_result = b.fill(template)
+  def write_template(job_spec, template, to)
+    spec = {
+      "properties" => @deploy_config["properties"],
+      "job" => {"name" => job_spec["name"]},
+      "networks" => {"default" => {"ip" => @ip_address}},
+      "index" => (@deploy_config["spec"] && @deploy_config["spec"]["index"]) || @index,
+    }
+    binding_helper = Bosh::Common::TemplateEvaluationContext.new(spec)
+    to_result = bind_template(ERB.new(File.read(template)), binding_helper, @index)
+
     FileUtils.mkdir_p(File.dirname(to))
     open(to, "w") {|f| f.write(to_result)}
 
@@ -259,5 +258,9 @@ class NiseBosh
 
   def job_exists?(job)
     File.exists?(File.join(@options[:repo_dir], "jobs", job))
+  end
+
+  def bind_template(template, binding_helper, index)
+    template.result(binding_helper.get_binding)
   end
 end

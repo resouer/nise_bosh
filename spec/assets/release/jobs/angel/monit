@@ -1,4 +1,4 @@
 monit
-<% unless hide.value %>
+<% unless p("hide.value") %>
 invisible
 <% end %>
