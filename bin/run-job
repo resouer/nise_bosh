@@ -1,4 +1,10 @@
 #!/usr/bin/env ruby
+
+if RUBY_VERSION < '1.9.0'
+  $stderr.puts("Ruby 1.9.0 or higher is required. Your Ruby version is #{RUBY_VERSION}")
+  exit(1)
+end
+
 require 'optparse'
 
 config = {

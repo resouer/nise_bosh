@@ -5,6 +5,7 @@ require 'recursive_os'
 
 class NiseBosh
   def initialize(options, logger)
+    check_ruby_version
     initialize_options(options)
     initialize_release_file
     initialize_depoy_config
@@ -12,6 +13,12 @@ class NiseBosh
     @log = logger
     @ip_address = @options[:ip_address] || %x[ifconfig eth0].match('inet addr:([\d.]+)')[1]
     @index ||=  @options[:index] || 0
+  end
+
+  def check_ruby_version
+    if RUBY_VERSION < '1.9.0'
+      raise "Ruby 1.9.0 or higher is required. Your Ruby version is #{RUBY_VERSION}"
+    end
   end
 
   def initialize_options(options)
