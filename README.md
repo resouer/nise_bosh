@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/nttlabs/nise_bosh.png?branch=master)](https://travis-ci.org/nttlabs/nise_bosh)
+
 # Nise BOSH
 
 ## What's this
