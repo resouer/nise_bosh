@@ -11,7 +11,8 @@ class NiseBosh
     initialize_depoy_config
 
     @log = logger
-    @ip_address = @options[:ip_address] || %x[ifconfig eth0].match('inet addr:([\d.]+)')[1]
+    @ip_address = @options[:ip_address]
+    @ip_address ||= %x[ip -4 -o address show].match('inet ([\d.]+)/.*? scope global') { |md| md[1] }
     @index ||=  @options[:index] || 0
   end
 

@@ -15,7 +15,6 @@ describe Runner do
     [{:name => "miku", :file_contents => "miku 39", :version => "39"},
      {:name => "luca", :file_contents => "tenshi", :version => "39-dev"}]
   end
-  let(:current_ip) { current_ip = %x[ifconfig eth0].match('inet addr:([\d.]+)')[1] }
   let(:archive_dir) { File.join(tmp_dir, "archive") }
   let(:default_archive_name) { "test-angel-39.3-dev.tar.gz" }
 

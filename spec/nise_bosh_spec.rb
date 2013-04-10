@@ -26,7 +26,7 @@ describe NiseBosh do
     setup_directory(@options[:install_dir])
 
     @nb = NiseBosh.new(@options, @log)
-    @current_ip = %x[ifconfig eth0].match('inet addr:([\d.]+)')[1]
+    @current_ip = current_ip()
   end
 
   describe "#new" do

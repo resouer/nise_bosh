@@ -1,3 +1,7 @@
+def current_ip()
+  %x[ip -4 -o address show].match('inet ([\d.]+)/.*? scope global') { |md| md[1] }
+end
+
 def setup_directory(path)
   FileUtils.rm_rf(path)
   FileUtils.mkdir_p(path)
