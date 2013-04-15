@@ -207,6 +207,54 @@ describe NiseBosh do
       expect_file_exists(@options[:install_dir], "packages", "luca", "dayo").to be_false
       check_templates
     end
+
+    it "should run post install hook" do
+      @nb.should_receive(:run_post_install_hook).with("angel")
+      @nb.install_job("angel", true)
+    end
+  end
+
+  describe "#run_post_install_hook" do
+    let(:post_install_hook_path) { File.join(@options[:install_dir], "jobs", "miku", "bin", "post_install") }
+
+    before do
+      if defined?(post_install)
+        FileUtils.mkdir_p(File.dirname(post_install_hook_path))
+        open(post_install_hook_path, "w") do |io|
+          io.write post_install
+        end
+        File.chmod(0755, post_install_hook_path)
+      end
+    end
+    
+    after do
+      File.delete(post_install_hook_path) if File.exist?(post_install_hook_path)
+    end
+
+    context "when bin/post_install file exist" do
+      let(:post_install) { "#!/bin/sh\necho ha ore no yome" }
+
+      it "should run post install hook" do
+        expect(File.executable?(post_install_hook_path)).to be_true
+        expect(@nb.run_post_install_hook("miku")).to eq("ha ore no yome\n")
+      end
+    end
+
+    context "when post_install file not exist" do
+      it "should not run anything" do
+        expect(File.exist?(post_install_hook_path)).to be_false
+        expect(@nb.run_post_install_hook("miku")).to be_nil
+      end
+    end
+
+    context "when post_install file exit with error" do
+      let(:post_install) { "#!/bin/sh\nexit 1" }
+
+      it "should raise an error" do
+        expect(File.executable?(post_install_hook_path)).to be_true
+        expect { @nb.run_post_install_hook("miku") }.to raise_error
+      end
+    end
   end
 
   describe "#sort_release_version" do
