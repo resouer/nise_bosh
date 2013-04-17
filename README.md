@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/nttlabs/nise_bosh.png?branch=master)](https://travis-ci.org/nttlabs/nise_bosh)
+[![Code Climate](https://codeclimate.com/github/nttlabs/nise_bosh.png)](https://codeclimate.com/github/nttlabs/nise_bosh)
 
 # Nise BOSH
 
